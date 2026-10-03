@@ -1,0 +1,39 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+node_modules/
+dist/
+
+
+*.pt
+weights/*.pt
+
+
+backend/data/
+
+
+weights/*_test.pth
+weights/*_test_metrics.json
+
+
+.claude/
+.vscode/
+.idea/
+
+.env
+.DS_Store
+
+# Değerlendirme klipleri ve koşu çıktıları. Klipler insan yüzü içerir ve
+# repoya girmez (bkz. benchmark/README.md "Gizlilik"). Etiketler
+# (benchmark/labels/) izlenir.
+benchmark/clips/
+benchmark/results/
+
+# Local archives and personal recordings
+*.zip
+*.mp4
+*.mov
+*.avi

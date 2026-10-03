@@ -1,0 +1,52 @@
+{
+  "clip": "S01_normal_01.mov",
+  "subject": "S01",
+  "conditions": [
+    "normal"
+  ],
+  "fps": 28.3047,
+  "duration_s": 66.243,
+  "notes": "Olay sinirlari 0.25 sn cozunurluklu kare incelemesiyle belirlendi. Belirsiz noktalar denege dogrulatildi: 50-56 sn asagi bakis (goz kapanmasi degil), esneme sirasindaki kapanma 2.5 sn esigin altinda, klip 2 kosulu headturn.",
+  "events": [
+    {
+      "start_s": 5.4,
+      "end_s": 11.9
+    },
+    {
+      "start_s": 20.6,
+      "end_s": 21.8,
+      "expect_alarm": false,
+      "label": "head_turn"
+    },
+    {
+      "start_s": 23.2,
+      "end_s": 32.0
+    },
+    {
+      "start_s": 32.3,
+      "end_s": 34.6,
+      "expect_alarm": false,
+      "label": "yawn"
+    },
+    {
+      "start_s": 37.9,
+      "end_s": 38.7,
+      "expect_alarm": false,
+      "label": "blink"
+    },
+    {
+      "start_s": 39.4,
+      "end_s": 47.1
+    },
+    {
+      "start_s": 50.0,
+      "end_s": 56.3,
+      "expect_alarm": false,
+      "label": "head_down"
+    },
+    {
+      "start_s": 59.9,
+      "end_s": 66.2
+    }
+  ]
+}

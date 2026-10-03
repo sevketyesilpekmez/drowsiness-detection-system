@@ -1,0 +1,39 @@
+Flask==3.0.3
+flask-cors==4.0.1
+gunicorn==22.0.0
+python-dotenv==1.0.1
+
+# mediapipe 0.10.18 zorunlu olarak opencv-contrib-python'a bağımlı (headless
+# değil) ve numpy<2 istiyor. Bu yüzden ayrıca opencv-python-headless
+# eklemiyoruz — ikisi aynı anda kuruluysa aynı `cv2` isim alanına yazıp
+# çakışabilir. opencv-contrib-python zaten headless'ın üst kümesi.
+mediapipe==0.10.18
+opencv-contrib-python==4.11.0.86
+numpy==1.26.4
+
+# mediapipe'ın transitive bağımlılıkları (pip freeze ile doğrulandı):
+protobuf==4.25.9
+absl-py==2.5.0
+sounddevice==0.5.5
+sentencepiece==0.2.2
+
+# YOLO + PyTorch backend'i (DETECTION_BACKEND=yolo_pytorch, varsayılan —
+# bkz. app/__init__.py::_try_build_yolo_pytorch_detect_fn). Kurulum sonrası
+# `python -c "import cv2; print(cv2.__file__)"` ile tek bir cv2 kurulu
+# olduğunu doğrulayın — ultralytics'in kendi bağımlılık listesi
+# opencv-python ister, bu opencv-contrib-python ile çakışabilir; sorun
+# çıkarsa `pip install ultralytics --no-deps` ile kurup eksik kalan diğer
+# bağımlılıkları (pyyaml, requests, matplotlib, pandas, tqdm, pillow,
+# psutil, py-cpuinfo, ultralytics-thop) elle ekleyin.
+#
+# Sürümler sabitlendi (>= yerine ==): weights/eye_classifier.pth bu
+# torch sürümüyle eğitildi ve kaydedildi, YOLO çağrıları da bu
+# ultralytics sürümüyle doğrulandı. Açık uçlu bir aralık, ileride
+# checkpoint formatı veya preprocessing davranışı değiştiğinde teslim
+# edilen modelin sessizce farklı sonuç üretmesine yol açabilir.
+# Aşağıdaki sürümler projenin geliştirildiği ortamdaki `pip freeze`
+# çıktısından alındı.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.13.0
+torchvision==0.28.0
+ultralytics==8.4.103

@@ -1,0 +1,638 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.dashboard-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.camera-panel {
+  background: #1e293b;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.panel-header h3 {
+  margin: 0;
+}
+
+.camera-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #020617;
+}
+
+.camera-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.camera-overlay {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.status-pill,
+.fps-pill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.75);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pill.safe {
+  color: #4ade80;
+}
+
+.status-pill.danger {
+  color: #f87171;
+}
+
+.fps-pill {
+  color: #e2e8f0;
+  font-variant-numeric: tabular-nums;
+}
+
+.camera-placeholder {
+  background: #1e293b;
+  border-radius: 8px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #64748b;
+  padding: 16px;
+  text-align: center;
+}
+
+.camera-placeholder button {
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  color: white;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+.status-card {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.status-card-error {
+  border: 1px solid #ef4444;
+}
+
+/* Sürücü durumunun birincil, büyük göstergesi — eski küçük "state-badge"
+   pill'in yerine geçti (mentor notu: "tablo gibi duruyor, ana durum
+   bilgisini büyütebilirsin"). Renkli nokta + büyük etiket. */
+.driver-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin: 12px 0 16px;
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.4);
+}
+
+.driver-state small {
+  display: block;
+  margin-bottom: 2px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.driver-state strong {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.state-dot {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.driver-state-awake .state-dot {
+  background: #22c55e;
+}
+
+.driver-state-no-face .state-dot,
+.driver-state-starting .state-dot {
+  background: #fcd34d;
+}
+
+/* UNVERIFIABLE: kişi kadrajda ama göz durumu okunamıyor. NO_FACE'in
+   sarısından daha koyu bir turuncu — "bilgi yok" değil, "ölçemiyorum"
+   demek ve kullanıcıdan bir düzeltme (yüzünü kameraya dön) bekliyor. */
+.driver-state-unverifiable .state-dot {
+  background: #f97316;
+  animation: driver-state-dot-pulse-amber 1.6s ease-in-out infinite;
+}
+
+.driver-state-unverifiable strong {
+  color: #fdba74;
+}
+
+.driver-state-camera-error .state-dot,
+.driver-state-model-error .state-dot,
+.driver-state-system-error .state-dot,
+.driver-state-drowsy .state-dot {
+  background: #ef4444;
+}
+
+.driver-state-drowsy strong {
+  color: #fca5a5;
+}
+
+.driver-state-drowsy .state-dot {
+  animation: driver-state-dot-pulse 1.6s ease-in-out infinite;
+}
+
+/* "Yaklaşıyor" sezgisel uyarısı (bkz. StatusCard.jsx isApproaching) — henüz
+   DROWSY değil ama gözler kapalı ve süre birikiyor, turuncu ile erken
+   uyarır. driver-state-{state} kurallarından SONRA gelmeli ki AWAKE'in
+   yeşil noktasını ezebilsin. */
+.driver-state-approaching .state-dot {
+  background: #f59e0b;
+  animation: driver-state-dot-pulse-amber 1.6s ease-in-out infinite;
+}
+
+@keyframes driver-state-dot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes driver-state-dot-pulse-amber {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.metric-card {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(2, 6, 23, 0.4);
+}
+
+/* EAR, son kullanıcı için pek anlamlı değil (teknik bir ölçüm) — ana
+   arayüzde ikinci plana alınır, tamamen kaldırılmaz. */
+.metric-card-secondary {
+  opacity: 0.7;
+}
+
+.metric-card-secondary dd {
+  font-size: 14px;
+}
+
+.metric-card dt {
+  margin: 0 0 4px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.metric-card dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.alert-error {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  font-size: 14px;
+}
+
+.alarm-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 16px;
+  background: #1e293b;
+  border-radius: 8px;
+}
+
+.alarm-panel h3 {
+  margin: 0 0 4px;
+}
+
+.alarm-description {
+  margin: 0;
+  max-width: 480px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.alarm-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alarm-indicator {
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.alarm-indicator-active {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  /* Sert blink yerine yumuşak, dışa doğru genişleyen bir "nabız" halkası —
+     alarmPulse: mentor'ün "hızlı blink amatör görünür" notu üzerine. */
+  animation: alarm-badge-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes alarm-badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+.alarm-actions button {
+  border: 0;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: 700;
+  color: white;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+.alarm-actions button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.alarm-mute-button {
+  background: #ef4444 !important;
+}
+
+.alarm-toggle-state {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.alarm-toggle-on {
+  background: rgba(37, 99, 235, 0.18);
+  color: #93c5fd;
+}
+
+.alarm-toggle-muted {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+}
+
+.alarm-snapshot-panel {
+  margin-top: 16px;
+  background: #1e293b;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.alarm-snapshot-placeholder {
+  padding: 24px 16px;
+  text-align: center;
+  color: #64748b;
+}
+
+.alarm-snapshot-placeholder p {
+  margin: 0;
+}
+
+/* Kompakt "olay kaydı" düzeni: solda küçük snapshot, sağda detaylar —
+   eskiden tam genişlikte tek başına duran büyük bir görüntüydü, sayfanın
+   dengesini bozuyordu (mentor notu). */
+.alarm-record {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px 16px;
+}
+
+.alarm-record-image {
+  width: 160px;
+  height: 120px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #020617;
+}
+
+.alarm-record-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+  flex: 1;
+  align-content: start;
+}
+
+.alarm-record-details dt {
+  margin: 0 0 2px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.alarm-record-details dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.alarm-record-enlarge {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  color: #93c5fd;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.alarm-record-enlarge:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .alarm-record {
+    flex-direction: column;
+  }
+
+  .alarm-record-image {
+    width: 100%;
+    height: 160px;
+  }
+}
+
+.alarm-history-panel {
+  margin-top: 16px;
+  background: #1e293b;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.alarm-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 16px 12px;
+}
+
+.alarm-history-row {
+  display: grid;
+  grid-template-columns: 90px 80px 60px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 0.5px solid rgba(148, 163, 184, 0.12);
+  font-size: 13px;
+}
+
+.alarm-history-row:first-child {
+  border-top: none;
+}
+
+.alarm-history-time {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.alarm-history-duration,
+.alarm-history-confidence {
+  color: #cbd5e1;
+}
+
+.alarm-history-view {
+  justify-self: end;
+  color: #93c5fd;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.alarm-history-view:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .alarm-history-row {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 2px;
+  }
+
+  .alarm-history-view {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+/* Sert 1s on/off blink yerine yumuşak, ease-in-out bir nefes alma efekti —
+   sürekli hızlı yanıp sönme "amatör" hissettiriyordu, bu daha profesyonel. */
+.alarm-flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  border: 10px solid #ef4444;
+  animation: alarm-flash 1.8s ease-in-out infinite;
+}
+
+@keyframes alarm-flash {
+  0%,
+  100% {
+    opacity: 0.35;
+    box-shadow: inset 0 0 40px rgba(239, 68, 68, 0.25);
+  }
+
+  50% {
+    opacity: 0.9;
+    box-shadow: inset 0 0 70px rgba(239, 68, 68, 0.45);
+  }
+}
+
+.dashboard.alarm-mode {
+  background: radial-gradient(circle at top, rgba(239, 68, 68, 0.1), transparent 40%);
+  border-radius: 12px;
+}
+
+.dashboard.alarm-mode .camera-panel {
+  border: 1px solid rgba(239, 68, 68, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, 0.25),
+    0 0 28px rgba(239, 68, 68, 0.18);
+}
+
+.dashboard.alarm-mode .status-card {
+  border: 1px solid rgba(239, 68, 68, 0.65);
+}
+
+.alarm-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.25);
+  animation: alarm-banner-enter 240ms ease-out;
+}
+
+.alarm-banner strong,
+.alarm-banner span {
+  display: block;
+}
+
+.alarm-banner strong {
+  font-size: 15px;
+}
+
+.alarm-banner > div > span {
+  margin-top: 3px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.alarm-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #450a0a;
+  font-weight: 800;
+}
+
+.alarm-time {
+  margin-left: auto;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes alarm-banner-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-ok {
+  background: #22c55e;
+}
+
+.dot-error {
+  background: #ef4444;
+}
+
+.dot-pending {
+  background: #eab308;
+}
+
+@media (max-width: 720px) {
+  .dashboard-main {
+    grid-template-columns: 1fr;
+  }
+
+  .alarm-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

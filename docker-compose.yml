@@ -1,0 +1,59 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: drowsiness-backend
+    
+    # ports:
+    #   - "127.0.0.1:5001:5000"
+    environment:
+      - VIDEO_SOURCE=${VIDEO_SOURCE:-0}
+      - ENABLE_DETECTION_ENGINE=${ENABLE_DETECTION_ENGINE:-true}
+      - DETECTION_BACKEND=${DETECTION_BACKEND:-yolo_pytorch}
+      - ALLOW_DETECTION_FALLBACK=${ALLOW_DETECTION_FALLBACK:-false}
+      - YOLO_MODEL_PATH=${YOLO_MODEL_PATH:-yolov8n.pt}
+      - YOLO_CONFIDENCE_THRESHOLD=${YOLO_CONFIDENCE_THRESHOLD:-0.5}
+      - YOLO_IMGSZ=${YOLO_IMGSZ:-640}
+      - CAMERA_WIDTH=${CAMERA_WIDTH:-640}
+      - CAMERA_HEIGHT=${CAMERA_HEIGHT:-480}
+      - TORCH_DEVICE=${TORCH_DEVICE:-cpu}
+      - EYE_CLASSIFIER_WEIGHTS_PATH=${EYE_CLASSIFIER_WEIGHTS_PATH:-weights/eye_classifier.pth}
+      - EYE_SEARCH_HEIGHT_RATIO=${EYE_SEARCH_HEIGHT_RATIO:-0.70}
+      - EYE_SMOOTHER_WINDOW_SECONDS=${EYE_SMOOTHER_WINDOW_SECONDS:-0.9}
+      - EYE_SMOOTHER_CLOSED_RATIO_THRESHOLD=${EYE_SMOOTHER_CLOSED_RATIO_THRESHOLD:-0.6}
+      - EYE_SMOOTHER_MISSING_TOLERANCE_SECONDS=${EYE_SMOOTHER_MISSING_TOLERANCE_SECONDS:-0.25}
+      - EYE_SMOOTHER_MINIMUM_VALID_SECONDS=${EYE_SMOOTHER_MINIMUM_VALID_SECONDS:-0.35}
+      - SINGLE_EYE_CONFIDENCE_THRESHOLD=${SINGLE_EYE_CONFIDENCE_THRESHOLD:-0.80}
+      - EYE_MEASUREMENT_GRACE_SECONDS=${EYE_MEASUREMENT_GRACE_SECONDS:-0.35}
+      - EYE_ADAPTIVE_MIN_SIZE_ENABLED=${EYE_ADAPTIVE_MIN_SIZE_ENABLED:-false}
+      - EYE_ADAPTIVE_MIN_SIZE_WIDTH_RATIO=${EYE_ADAPTIVE_MIN_SIZE_WIDTH_RATIO:-0.12}
+      - EYE_ADAPTIVE_MIN_SIZE_HEIGHT_RATIO=${EYE_ADAPTIVE_MIN_SIZE_HEIGHT_RATIO:-0.08}
+      - EYE_SPLIT_LEFT_RIGHT=${EYE_SPLIT_LEFT_RIGHT:-false}
+      - EYE_LOCATOR_BACKEND=${EYE_LOCATOR_BACKEND:-mediapipe}
+      - EYE_LANDMARK_PADDING_RATIO=${EYE_LANDMARK_PADDING_RATIO:-0.4}
+      - DROWSINESS_SECONDS=${DROWSINESS_SECONDS:-2.5}
+      - CLOSED_EYES_GRACE_PERIOD_SECONDS=${CLOSED_EYES_GRACE_PERIOD_SECONDS:-0.3}
+      - EAR_THRESHOLD=${EAR_THRESHOLD:-0.22}
+      - ALARM_COOLDOWN_SECONDS=${ALARM_COOLDOWN_SECONDS:-5.0}
+      - DRAW_LANDMARKS=${DRAW_LANDMARKS:-true}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}
+    volumes:
+      - ./backend/weights:/app/weights
+      - ./sample_data:/app/sample_data:ro
+  
+    # devices:
+    #   - "/dev/video0:/dev/video0"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: drowsiness-frontend
+    ports:
+      # Yalnızca localhost. Nginx /api/* isteklerini backend'e proxy'liyor ve
+      # bu API canlı kamera görüntüsü sunuyor; "3000:80" yazılırsa yerel ağdaki
+      # her cihaz makinenin IP'si üzerinden kameraya erişebilir.
+      - "127.0.0.1:3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
